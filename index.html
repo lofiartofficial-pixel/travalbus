@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lanka Bus Trip Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --lion: #8B0000; --gold: #F5A623; --green: #1A6B3C;
+  --sky: #1E90FF; --cream: #FFF8F0; --dark: #1A1A2E;
+}
+body { font-family: 'Poppins', sans-serif; background: var(--cream); color: var(--dark); }
+
+.header {
+  background: linear-gradient(135deg, #8B0000, #C0392B);
+  padding: 28px 20px 20px;
+  position: relative; overflow: hidden;
+}
+.header::after {
+  content: '🦁';
+  position: absolute; font-size: 160px; opacity: 0.07;
+  right: -10px; top: -10px;
+}
+.flag-bar { display: flex; gap: 4px; margin-bottom: 14px; }
+.fs { height: 5px; border-radius: 3px; }
+.header h1 { font-size: 26px; font-weight: 800; color: white; line-height: 1.2; margin-bottom: 4px; }
+.header h1 span { color: var(--gold); }
+.header p { font-size: 12px; color: rgba(255,255,255,0.65); }
+
+.tabs {
+  display: flex; background: white;
+  border-bottom: 2px solid #eee; overflow-x: auto; scrollbar-width: none;
+}
+.tab {
+  padding: 13px 16px; font-size: 12px; font-weight: 600; color: #999;
+  cursor: pointer; white-space: nowrap; border-bottom: 3px solid transparent; transition: all 0.3s;
+}
+.tab.active { color: var(--lion); border-bottom-color: var(--lion); }
+
+.content { padding: 18px 15px; max-width: 760px; margin: 0 auto; padding-bottom: 40px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.sec-title { font-size: 17px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
+
+.route-card {
+  background: white; border-radius: 14px; padding: 18px; margin-bottom: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08); border-left: 4px solid var(--lion);
+  transition: transform 0.2s;
+}
+.route-card:hover { transform: translateY(-2px); }
+.route-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+.route-name { font-size: 15px; font-weight: 700; }
+.rbadge { padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 600; }
+.bn { background: #E3F2FD; color: #1565C0; }
+.bs { background: #E8F5E9; color: #2E7D32; }
+.bc { background: #FFF3E0; color: #E65100; }
+.be { background: #F3E5F5; color: #6A1B9A; }
+
+.stops { display: flex; align-items: center; flex-wrap: wrap; gap: 3px; margin-bottom: 12px; }
+.stop { display: flex; align-items: center; gap: 3px; font-size: 11px; color: #555; }
+.sd { width: 8px; height: 8px; border-radius: 50%; background: var(--lion); }
+.sl { width: 18px; height: 2px; background: #ddd; }
+
+.rinfo { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.ri { background: var(--cream); border-radius: 8px; padding: 8px; text-align: center; }
+.rl { font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+.rv { font-size: 13px; font-weight: 700; }
+
+.bus-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+.bus-card {
+  background: white; border-radius: 13px; padding: 15px; text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07); border-top: 3px solid var(--gold);
+}
+.bi { font-size: 34px; margin-bottom: 6px; }
+.bn2 { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.bd { font-size: 11px; color: #777; line-height: 1.4; }
+.bp { margin-top: 8px; padding: 3px 8px; background: #FFF3E0; border-radius: 20px; font-size: 11px; font-weight: 600; color: #E65100; display: inline-block; }
+
+.tip-card { background: white; border-radius: 13px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 2px 7px rgba(0,0,0,0.07); display: flex; gap: 12px; align-items: flex-start; }
+.ti { font-size: 26px; flex-shrink: 0; }
+.tt { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.tx { font-size: 11px; color: #666; line-height: 1.6; }
+
+.spots-grid { display: grid; gap: 10px; }
+.spot-card { background: white; border-radius: 13px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.07); display: flex; }
+.sc { width: 5px; flex-shrink: 0; }
+.scont { padding: 12px 14px; flex: 1; }
+.sh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.sn { font-size: 14px; font-weight: 700; }
+.sr { font-size: 10px; color: #999; background: #f5f5f5; padding: 2px 7px; border-radius: 10px; }
+.sd2 { font-size: 11px; color: #666; line-height: 1.5; margin-bottom: 6px; }
+.sbus { display: flex; gap: 5px; flex-wrap: wrap; }
+.bt { font-size: 10px; padding: 2px 7px; border-radius: 10px; background: #E3F2FD; color: #1565C0; font-weight: 500; }
+
+.planner-form { background: white; border-radius: 15px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 18px; }
+.fl { font-size: 11px; font-weight: 600; color: #555; margin-bottom: 5px; display: block; }
+.form-row { margin-bottom: 12px; }
+select, input {
+  width: 100%; padding: 11px 13px; border: 2px solid #eee; border-radius: 9px;
+  font-family: 'Poppins', sans-serif; font-size: 13px; color: var(--dark); background: white; outline: none; transition: border-color 0.3s;
+}
+select:focus, input:focus { border-color: var(--lion); }
+.plan-btn {
+  width: 100%; padding: 13px; background: linear-gradient(135deg, #8B0000, #C0392B);
+  color: white; border: none; border-radius: 11px; font-family: 'Poppins', sans-serif;
+  font-size: 14px; font-weight: 700; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+}
+.plan-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 18px rgba(139,0,0,0.3); }
+
+.result-card { background: white; border-radius: 15px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); display: none; }
+.result-card.show { display: block; animation: sup 0.4s ease; }
+@keyframes sup { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.rh { display: flex; align-items: center; gap: 10px; padding: 14px; background: linear-gradient(135deg, #8B0000, #C0392B); border-radius: 11px; margin-bottom: 14px; color: white; }
+.rti { font-size: 28px; }
+.rtt { font-size: 15px; font-weight: 700; }
+.rts { font-size: 11px; opacity: 0.75; }
+.day-plan { margin-bottom: 10px; }
+.dh { font-size: 12px; font-weight: 700; color: var(--lion); padding: 7px 10px; background: #FFF0F0; border-radius: 7px; margin-bottom: 7px; }
+.di { display: flex; gap: 10px; padding: 6px 10px; border-left: 2px solid #eee; margin-left: 7px; margin-bottom: 3px; }
+.dt { font-size: 10px; color: #999; min-width: 48px; font-weight: 600; padding-top: 2px; }
+.da { font-size: 12px; color: var(--dark); line-height: 1.5; }
+
+.budget-table { width: 100%; border-collapse: collapse; background: white; border-radius: 13px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 14px; }
+.budget-table th { background: var(--lion); color: white; padding: 11px 14px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.budget-table td { padding: 11px 14px; font-size: 12px; border-bottom: 1px solid #f5f5f5; }
+.budget-table tr:last-child td { border-bottom: none; }
+.budget-table tr:nth-child(even) td { background: #FFF8F0; }
+.btot td { font-weight: 700; color: var(--lion); background: #FFF0F0 !important; font-size: 13px; }
+
+.emer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+.emer-card { background: white; border-radius: 11px; padding: 13px; text-align: center; box-shadow: 0 2px 7px rgba(0,0,0,0.07); }
+.ei { font-size: 26px; margin-bottom: 5px; }
+.en { font-size: 11px; font-weight: 600; margin-bottom: 3px; }
+.enum { font-size: 20px; font-weight: 800; color: var(--lion); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="flag-bar">
+    <div class="fs" style="background:#8B0000; flex:2"></div>
+    <div class="fs" style="background:#F5A623; width:10px"></div>
+    <div class="fs" style="background:#1A6B3C; width:10px"></div>
+    <div class="fs" style="background:#F5A623; width:10px"></div>
+    <div class="fs" style="background:#8B0000; flex:2"></div>
+  </div>
+  <h1>🚌 Lanka Bus Trip<br><span>Planner</span></h1>
+  <p>Bus ekkin island tour karanna complete guide 🇱🇰</p>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('routes')">🗺️ Routes</div>
+  <div class="tab" onclick="showTab('buses')">🚌 Bus Types</div>
+  <div class="tab" onclick="showTab('spots')">📍 Must-See</div>
+  <div class="tab" onclick="showTab('planner')">📅 Plan</div>
+  <div class="tab" onclick="showTab('budget')">💰 Budget</div>
+  <div class="tab" onclick="showTab('tips')">💡 Tips</div>
+</div>
+
+<div class="content">
+
+<!-- ROUTES -->
+<div class="tab-panel active" id="tab-routes">
+  <div class="sec-title">🗺️ Main Bus Routes</div>
+
+  <div class="route-card">
+    <div class="route-header"><div class="route-name">Colombo → Kandy</div><span class="rbadge bc">Central</span></div>
+    <div class="stops">
+      <div class="stop"><div class="sd"></div>Colombo<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Kegalle<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Mawanella<div class="sl"></div></div>
+      <div class="stop"><div class="sd"></div>Kandy</div>
+    </div>
+    <div class="rinfo">
+      <div class="ri"><div class="rl">Kaalaya</div><div class="rv">~3 hrs</div></div>
+      <div class="ri"><div class="rl">Bus No.</div><div class="rv">592 / 594</div></div>
+      <div class="ri"><div class="rl">Gasthuwwa</div><div class="rv">Rs. 160</div></div>
+    </div>
+  </div>
+
+  <div class="route-card" style="border-left-color:var(--green)">
+    <div class="route-header"><div class="route-name">Colombo → Galle</div><span class="rbadge bs">Southern</span></div>
+    <div class="stops">
+      <div class="stop"><div class="sd" style="background:var(--green)"></div>Colombo<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Moratuwa<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Kalutara<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Hikkaduwa<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:var(--green)"></div>Galle</div>
+    </div>
+    <div class="rinfo">
+      <div class="ri"><div class="rl">Kaalaya</div><div class="rv">~2.5 hrs</div></div>
+      <div class="ri"><div class="rl">Bus No.</div><div class="rv">2 / 3</div></div>
+      <div class="ri"><div class="rl">Gasthuwwa</div><div class="rv">Rs. 130</div></div>
+    </div>
+  </div>
+
+  <div class="route-card" style="border-left-color:#E65100">
+    <div class="route-header"><div class="route-name">Kandy → Ella (Hill Country)</div><span class="rbadge bc">Hills</span></div>
+    <div class="stops">
+      <div class="stop"><div class="sd" style="background:#E65100"></div>Kandy<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Nuwara Eliya<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Welimada<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#E65100"></div>Ella</div>
+    </div>
+    <div class="rinfo">
+      <div class="ri"><div class="rl">Kaalaya</div><div class="rv">~4 hrs</div></div>
+      <div class="ri"><div class="rl">Bus No.</div><div class="rv">98 / 99</div></div>
+      <div class="ri"><div class="rl">Gasthuwwa</div><div class="rv">Rs. 200</div></div>
+    </div>
+  </div>
+
+  <div class="route-card" style="border-left-color:var(--sky)">
+    <div class="route-header"><div class="route-name">Colombo → Jaffna</div><span class="rbadge bn">Northern</span></div>
+    <div class="stops">
+      <div class="stop"><div class="sd" style="background:var(--sky)"></div>Colombo<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Kurunegala<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Anuradhapura<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Vavuniya<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:var(--sky)"></div>Jaffna</div>
+    </div>
+    <div class="rinfo">
+      <div class="ri"><div class="rl">Kaalaya</div><div class="rv">~7-8 hrs</div></div>
+      <div class="ri"><div class="rl">Bus No.</div><div class="rv">SLTB Exp.</div></div>
+      <div class="ri"><div class="rl">Gasthuwwa</div><div class="rv">Rs. 450</div></div>
+    </div>
+  </div>
+
+  <div class="route-card" style="border-left-color:#6A1B9A">
+    <div class="route-header"><div class="route-name">Colombo → Trincomalee</div><span class="rbadge be">Eastern</span></div>
+    <div class="stops">
+      <div class="stop"><div class="sd" style="background:#6A1B9A"></div>Colombo<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Dambulla<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Habarana<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#6A1B9A"></div>Trincomalee</div>
+    </div>
+    <div class="rinfo">
+      <div class="ri"><div class="rl">Kaalaya</div><div class="rv">~5-6 hrs</div></div>
+      <div class="ri"><div class="rl">Bus No.</div><div class="rv">49 / 50</div></div>
+      <div class="ri"><div class="rl">Gasthuwwa</div><div class="rv">Rs. 350</div></div>
+    </div>
+  </div>
+
+  <div class="route-card" style="border-left-color:var(--gold)">
+    <div class="route-header"><div class="route-name">Galle → Matara → Tissamaharama</div><span class="rbadge bs">South Loop</span></div>
+    <div class="stops">
+      <div class="stop"><div class="sd" style="background:var(--gold)"></div>Galle<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Matara<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:#888"></div>Tangalle<div class="sl"></div></div>
+      <div class="stop"><div class="sd" style="background:var(--gold)"></div>Tissa</div>
+    </div>
+    <div class="rinfo">
+      <div class="ri"><div class="rl">Kaalaya</div><div class="rv">~3 hrs</div></div>
+      <div class="ri"><div class="rl">Bus No.</div><div class="rv">32 / 33</div></div>
+      <div class="ri"><div class="rl">Gasthuwwa</div><div class="rv">Rs. 180</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- BUS TYPES -->
+<div class="tab-panel" id="tab-buses">
+  <div class="sec-title">🚌 Bus Varge</div>
+  <div class="bus-grid">
+    <div class="bus-card" style="border-top-color:#8B0000"><div class="bi">🔴</div><div class="bn2">SLTB Bus</div><div class="bd">Rajaye bus. Cheap. Gamata godak stops.</div><div class="bp">Rs. 5-20/km</div></div>
+    <div class="bus-card" style="border-top-color:#1565C0"><div class="bi">🔵</div><div class="bn2">Private Bus</div><div class="bd">Hari kadina. Fast. SLTB wageta seats.</div><div class="bp">SLTB tika jastayi</div></div>
+    <div class="bus-card" style="border-top-color:var(--gold)"><div class="bi">✨</div><div class="bn2">Semi-Luxury</div><div class="bd">AC naha bat comfortable. Long distance honda.</div><div class="bp">Rs. 300–800</div></div>
+    <div class="bus-card" style="border-top-color:var(--green)"><div class="bi">👑</div><div class="bn2">Luxury AC</div><div class="bd">Full AC, reclining seats. Jaffna/Trinco wageta.</div><div class="bp">Rs. 600–1500</div></div>
+    <div class="bus-card" style="border-top-color:#E65100"><div class="bi">🎒</div><div class="bn2">Intercity Express</div><div class="bd">Wayata stop wenava naha. Fast!</div><div class="bp">Rs. 200–500</div></div>
+    <div class="bus-card" style="border-top-color:#6A1B9A"><div class="bi">🌙</div><div class="bn2">Night Express</div><div class="bd">Colombo-Jaffna/Trinco reyata. Subha.</div><div class="bp">Rs. 450–800</div></div>
+  </div>
+  <div class="sec-title">🏢 Ticket Ganna Thanwal</div>
+  <div class="tip-card"><div class="ti">🚉</div><div><div class="tt">Bastian Mawatha Terminal (Colombo)</div><div class="tx">Main bus terminal. Pita district hama busekma labei. SLTB & private deka tiyenawa.</div></div></div>
+  <div class="tip-card"><div class="ti">🚌</div><div><div class="tt">Pettah Manning Place</div><div class="tx">City buses. Kandy, Negombo, Kurunegala buses labei.</div></div></div>
+  <div class="tip-card"><div class="ti">📱</div><div><div class="tt">Online — busonlineticket.lk</div><div class="tx">AC & luxury buses online book. Seat select karanna puluvn.</div></div></div>
+</div>
+
+<!-- SPOTS -->
+<div class="tab-panel" id="tab-spots">
+  <div class="sec-title">📍 Bus Ekkin Yanawa Thanwal</div>
+  <div class="spots-grid">
+    <div class="spot-card"><div class="sc" style="background:#E65100"></div><div class="scont"><div class="sh"><span class="sn">🦷 Kandy — Dalada Maligawa</span><span class="sr">Central</span></div><p class="sd2">Dalada Maligawa, Kandy Lake, Peradeniya Garden. Lanka trip ekat mokmath epa.</p><div class="sbus"><span class="bt">Bus 592/594 Colombo oka</span><span class="bt">~3 hrs · Rs.160</span></div></div></div>
+    <div class="spot-card"><div class="sc" style="background:var(--green)"></div><div class="scont"><div class="sh"><span class="sn">🦁 Sigiriya</span><span class="sr">N. Central</span></div><p class="sd2">Duniya prasidha galkandaya. Dambullata bus gihilla local bus Sigiriyata.</p><div class="sbus"><span class="bt">Colombo→Dambulla Bus 15</span><span class="bt">Dambulla→Sigiriya local</span></div></div></div>
+    <div class="spot-card"><div class="sc" style="background:#1565C0"></div><div class="scont"><div class="sh"><span class="sn">🌿 Ella</span><span class="sr">Uva</span></div><p class="sd2">Nine Arch Bridge, Little Adam's Peak, tea estate. Backpacker paradise.</p><div class="sbus"><span class="bt">Kandy→Ella Bus 99</span><span class="bt">~4 hrs · Rs.200</span></div></div></div>
+    <div class="spot-card"><div class="sc" style="background:var(--gold)"></div><div class="scont"><div class="sh"><span class="sn">⛵ Galle Fort</span><span class="sr">Southern</span></div><p class="sd2">Dutch colonial fort, cafes, lighthouse. Sande yanna best.</p><div class="sbus"><span class="bt">Colombo→Galle Bus 2/3</span><span class="bt">~2.5 hrs · Rs.130</span></div></div></div>
+    <div class="spot-card"><div class="sc" style="background:#8B0000"></div><div class="scont"><div class="sh"><span class="sn">🏛️ Anuradhapura</span><span class="sr">N. Central</span></div><p class="sd2">Ancient ruins, Ruwanwelisaya, Sri Maha Bodhi. History lovers dream.</p><div class="sbus"><span class="bt">Colombo→Anuradhapura Express</span><span class="bt">~4 hrs · Rs.250</span></div></div></div>
+    <div class="spot-card"><div class="sc" style="background:#00838F"></div><div class="scont"><div class="sh"><span class="sn">🐘 Pinnawala</span><span class="sr">Sabaragamuwa</span></div><p class="sd2">Elephant orphanage. Aliyanta bath denna balanna puluvn.</p><div class="sbus"><span class="bt">Colombo→Kegalle bus</span><span class="bt">Kegalle→Pinnawala local</span></div></div></div>
+    <div class="spot-card"><div class="sc" style="background:#6A1B9A"></div><div class="scont"><div class="sh"><span class="sn">🌅 Trincomalee</span><span class="sr">Eastern</span></div><p class="sd2">Nilaveli beach, whale watching, Koneswaram temple. East coast gem.</p><div class="sbus"><span class="bt">Colombo→Trinco Bus 49</span><span class="bt">~6 hrs · Rs.350</span></div></div></div>
+    <div class="spot-card"><div class="sc" style="background:#2E7D32"></div><div class="scont"><div class="sh"><span class="sn">🍵 Nuwara Eliya</span><span class="sr">Central Hills</span></div><p class="sd2">"Little England". Tea factories, eluwa, strawberries. Cool weather.</p><div class="sbus"><span class="bt">Colombo→Nuwara Eliya</span><span class="bt">~5 hrs · Rs.220</span></div></div></div>
+  </div>
+</div>
+
+<!-- PLANNER -->
+<div class="tab-panel" id="tab-planner">
+  <div class="sec-title">📅 Trip Plan Hadaganna</div>
+  <div class="planner-form">
+    <div class="form-row">
+      <label class="fl">🏙️ Start thanwa</label>
+      <select id="startCity">
+        <option value="colombo">Colombo</option>
+        <option value="kandy">Kandy</option>
+        <option value="galle">Galle</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="fl">📅 Dina ganak</label>
+      <select id="days">
+        <option value="3">3 Days</option>
+        <option value="5">5 Days</option>
+        <option value="7">7 Days</option>
+        <option value="10">10 Days</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="fl">🎯 Trip type</label>
+      <select id="tripType">
+        <option value="culture">Cultural / History</option>
+        <option value="nature">Nature / Adventure</option>
+        <option value="beach">Beach / Relax</option>
+        <option value="mixed">Mixed (Godak balanna)</option>
+      </select>
+    </div>
+    <button class="plan-btn" onclick="generatePlan()">🗺️ Plan Hadaganna!</button>
+  </div>
+  <div class="result-card" id="planResult"></div>
+</div>
+
+<!-- BUDGET -->
+<div class="tab-panel" id="tab-budget">
+  <div class="sec-title">💰 Budget Guide (7 Day)</div>
+  <table class="budget-table">
+    <tr><th>Category</th><th>Budget</th><th>Mid</th></tr>
+    <tr><td>🚌 Bus fares</td><td>Rs. 1,500</td><td>Rs. 3,000</td></tr>
+    <tr><td>🏨 Accommodation/night</td><td>Rs. 1,200–1,800</td><td>Rs. 3,000–5,000</td></tr>
+    <tr><td>🍛 Kema (3 wela/day)</td><td>Rs. 600–900</td><td>Rs. 1,500–2,500</td></tr>
+    <tr><td>🎫 Entry tickets</td><td>Rs. 2,000</td><td>Rs. 5,000</td></tr>
+    <tr><td>🛺 Local tuk tuk</td><td>Rs. 1,000</td><td>Rs. 2,500</td></tr>
+    <tr><td>🛍️ Shopping / misc</td><td>Rs. 1,000</td><td>Rs. 3,000</td></tr>
+    <tr class="btot"><td>💰 7 Day Total</td><td>~Rs. 25,000</td><td>~Rs. 55,000</td></tr>
+  </table>
+  <div class="sec-title">💡 Save karanna</div>
+  <div class="tip-card"><div class="ti">🍛</div><div><div class="tt">Local kade kema kannako</div><div class="tx">Kade ekat Rs. 150–250 wita dinner labei. Tourist restaurants vala Rs. 800+ weyi.</div></div></div>
+  <div class="tip-card"><div class="ti">🏠</div><div><div class="tt">Guesthouse / Homestay</div><div class="tx">Rs. 1000–1500 at ganna labei. Breakfast ekath denawa often.</div></div></div>
+  <div class="tip-card"><div class="ti">🎟️</div><div><div class="tt">Cultural Triangle Combined Ticket</div><div class="tx">Sigiriya + Polonnaruwa + Anuradhapura ekai ticket. Thani thani gannavata vada sasta.</div></div></div>
+</div>
+
+<!-- TIPS -->
+<div class="tab-panel" id="tab-tips">
+  <div class="sec-title">💡 Bus Trip Tips</div>
+  <div class="tip-card"><div class="ti">⏰</div><div><div class="tt">Ude wela yanna!</div><div class="tx">Colombo buses 6–9 ata godak crowd. 10 kala igata yannako.</div></div></div>
+  <div class="tip-card"><div class="ti">💺</div><div><div class="tt">Front seat ganna try karanna</div><div class="tx">Ude bus stand gihin early seat gannako. AC bus ekkata online book karanna puluvn.</div></div></div>
+  <div class="tip-card"><div class="ti">🎒</div><div><div class="tt">Small bag ekak mathayi</div><div class="tx">Bus ekat godak luggage kasala. Daypack ekak wada honda. Valuables close keep.</div></div></div>
+  <div class="tip-card"><div class="ti">💧</div><div><div class="tt">Water & Snacks pakkaranna</div><div class="tx">Bus journey waladi water & snacks ganna. Bus stop waladi wadi gasth denawa.</div></div></div>
+  <div class="tip-card"><div class="ti">📱</div><div><div class="tt">Offline Maps Download</div><div class="tx">Google Maps offline download karanna. Village waladi data work wenava naha.</div></div></div>
+  <div class="tip-card"><div class="ti">💵</div><div><div class="tt">Cash Ready</div><div class="tx">Bus, small kade waladi card genawa naha. Small notes always ready karanna.</div></div></div>
+  <div class="tip-card"><div class="ti">🌧️</div><div><div class="tt">Umbrella / Raincoat</div><div class="tx">Light umbrella always pakkaranna. Wet season: May–Sept (SW coast), Oct–Jan (NE/East).</div></div></div>
+  <div class="tip-card"><div class="ti">🗣️</div><div><div class="tt">Basic Sinhala!</div><div class="tx">"Galle yanne kohenda?" — Locals love it when you try. Gamata yanna honda impression.</div></div></div>
+
+  <div class="sec-title" style="margin-top:18px">🚨 Emergency Numbers</div>
+  <div class="emer-grid">
+    <div class="emer-card"><div class="ei">🚑</div><div class="en">Ambulance</div><div class="enum">1990</div></div>
+    <div class="emer-card"><div class="ei">👮</div><div class="en">Police</div><div class="enum">119</div></div>
+    <div class="emer-card"><div class="ei">🔥</div><div class="en">Fire</div><div class="enum">110</div></div>
+    <div class="emer-card"><div class="ei">🚌</div><div class="en">SLTB Info</div><div class="enum">1955</div></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showTab(name) {
+  const tabs = ['routes','buses','spots','planner','budget','tips'];
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab')[tabs.indexOf(name)].classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+}
+
+const plans = {
+  culture: [
+    {day:"Day 1 — Colombo → Anuradhapura", items:[{t:"6:00 AM",a:"Bastian Terminal idan express bus (Rs. 250)"},{t:"10:00 AM",a:"Anuradhapura: Ruwanwelisaya, Sri Maha Bodhi"},{t:"2:00 PM",a:"Local bus Mihintale (Rs. 30)"},{t:"Evening",a:"Guesthouse stay ~ Rs. 1500"}]},
+    {day:"Day 2 — Sigiriya", items:[{t:"7:00 AM",a:"Bus Dambulla (Rs. 80) → local Sigiriya (Rs. 30)"},{t:"10:00 AM",a:"Sigiriya rock climb (ticket Rs. 4500)"},{t:"3:00 PM",a:"Dambulla Cave Temple (Rs. 1500)"},{t:"Evening",a:"Habarana guesthouse"}]},
+    {day:"Day 3 — Kandy → Colombo", items:[{t:"6:00 AM",a:"Habarana → Kandy bus (Rs. 120)"},{t:"10:00 AM",a:"Kandy Dalada Maligawa, Kandy Lake"},{t:"3:00 PM",a:"Peradeniya Botanical Garden"},{t:"6:00 PM",a:"Kandy → Colombo bus (Rs. 160)"}]},
+    {day:"Day 4 — Polonnaruwa", items:[{t:"6:00 AM",a:"Colombo → Polonnaruwa (Rs. 180)"},{t:"9:00 AM",a:"Gal Vihara, Royal Palace ruins"},{t:"2:00 PM",a:"Return Colombo"}]},
+    {day:"Day 5 — Colombo City", items:[{t:"9:00 AM",a:"National Museum (Rs. 200)"},{t:"11:00 AM",a:"Gangaramaya Temple"},{t:"2:00 PM",a:"Pettah market shopping"},{t:"5:00 PM",a:"Galle Face Green sunset"}]},
+  ],
+  nature: [
+    {day:"Day 1 — Colombo → Nuwara Eliya", items:[{t:"6:00 AM",a:"Colombo → Nuwara Eliya bus (Rs. 220)"},{t:"11:00 AM",a:"Pedro Tea Factory tour"},{t:"2:00 PM",a:"Gregory Lake walk"},{t:"Evening",a:"Nuwara Eliya overnight"}]},
+    {day:"Day 2 — Ella", items:[{t:"8:00 AM",a:"Nuwara Eliya → Ella bus (Rs. 80)"},{t:"11:00 AM",a:"Nine Arch Bridge"},{t:"2:00 PM",a:"Little Adam's Peak hike (free)"},{t:"Evening",a:"Ella sunset enjoy"}]},
+    {day:"Day 3 — Ravana Falls + Yala", items:[{t:"8:00 AM",a:"Ravana Falls (tuk Rs. 200)"},{t:"11:00 AM",a:"Ella → Tissa (2 buses, Rs. 150)"},{t:"Afternoon",a:"Yala safari book karanna"},{t:"Early AM",a:"NEXT DAY: Yala safari (Rs. 5000+)"}]},
+    {day:"Day 4 — Yala → Galle", items:[{t:"5:30 AM",a:"Yala National Park — leopards, elephants!"},{t:"12:00 PM",a:"Tissa → Galle bus (Rs. 180)"},{t:"Evening",a:"Galle Fort overnight"}]},
+    {day:"Day 5 — Sinharaja / Return", items:[{t:"9:00 AM",a:"Sinharaja Rainforest local bus"},{t:"2:00 PM",a:"Colombo return express"}]},
+  ],
+  beach: [
+    {day:"Day 1 — Colombo → Galle", items:[{t:"7:00 AM",a:"Colombo → Galle bus 2/3 (Rs. 130)"},{t:"9:30 AM",a:"Galle Fort walk, cafes"},{t:"1:00 PM",a:"Unawatuna beach (tuk Rs. 100)"},{t:"Evening",a:"Fort guesthouse ~ Rs. 1800"}]},
+    {day:"Day 2 — Hikkaduwa + Mirissa", items:[{t:"9:00 AM",a:"Hikkaduwa bus (Rs. 50) — coral reef snorkeling"},{t:"1:00 PM",a:"Mirissa bus (Rs. 80)"},{t:"3:00 PM",a:"Mirissa beach, coconut kurumba"},{t:"Evening",a:"Mirissa overnight"}]},
+    {day:"Day 3 — Tangalle", items:[{t:"9:00 AM",a:"Tangalle bus — quiet, beautiful beach"},{t:"2:00 PM",a:"Sea turtle nesting spot (seasonal)"},{t:"Evening",a:"Tangalle guesthouse"}]},
+    {day:"Day 4 — Matara → Colombo", items:[{t:"8:00 AM",a:"Matara Dondra lighthouse visit"},{t:"11:00 AM",a:"Matara → Colombo express (Rs. 200)"},{t:"2:00 PM",a:"Colombo reach"}]},
+  ],
+  mixed: [
+    {day:"Day 1 — Colombo → Kandy", items:[{t:"7:00 AM",a:"Bus 592/594 (Rs. 160)"},{t:"10:00 AM",a:"Dalada Maligawa, Kandy Lake"},{t:"3:00 PM",a:"Peradeniya Botanical Garden"},{t:"Evening",a:"Kandy Cultural Show (Rs. 1000)"}]},
+    {day:"Day 2 — Nuwara Eliya", items:[{t:"8:00 AM",a:"Kandy → Nuwara Eliya (Rs. 80)"},{t:"11:00 AM",a:"Pedro Tea Estate"},{t:"2:00 PM",a:"Gregory Lake, Victoria Park"},{t:"Evening",a:"Little England atmosphere"}]},
+    {day:"Day 3 — Ella", items:[{t:"8:00 AM",a:"Nuwara Eliya → Ella (Rs. 80)"},{t:"11:00 AM",a:"Nine Arch Bridge"},{t:"2:00 PM",a:"Little Adam's Peak hike"},{t:"Evening",a:"Ella chill & sunset"}]},
+    {day:"Day 4 — Yala", items:[{t:"7:00 AM",a:"Ella → Tissamaharama (Rs. 150)"},{t:"Afternoon",a:"Yala National Park book karanna"},{t:"Early AM",a:"NEXT DAY: Yala safari!"}]},
+    {day:"Day 5 — Galle", items:[{t:"8:00 AM",a:"Tissa → Matara → Galle (Rs. 180)"},{t:"12:00 PM",a:"Galle Fort explore"},{t:"3:00 PM",a:"Unawatuna beach"},{t:"Evening",a:"Fort guesthouse"}]},
+    {day:"Day 6 — South Coast", items:[{t:"9:00 AM",a:"Hikkaduwa snorkeling"},{t:"1:00 PM",a:"Mirissa beach & seafood"},{t:"Evening",a:"Mirissa overnight"}]},
+    {day:"Day 7 — Return", items:[{t:"8:00 AM",a:"Mirissa → Colombo express (Rs. 200)"},{t:"11:00 AM",a:"Colombo city last look"},{t:"2:00 PM",a:"Galle Face Green"},{t:"Evening",a:"Trip end! 🎉"}]},
+  ]
+};
+
+function generatePlan() {
+  const days = parseInt(document.getElementById('days').value);
+  const type = document.getElementById('tripType').value;
+  const result = document.getElementById('planResult');
+  result.classList.add('show');
+
+  const selectedPlan = plans[type] || plans.mixed;
+  const sliced = selectedPlan.slice(0, days);
+
+  let html = `<div class="rh"><div class="rti">🗺️</div><div><div class="rtt">${days}-Day ${type.charAt(0).toUpperCase()+type.slice(1)} Trip</div><div class="rts">Bus ekkin complete island experience 🚌</div></div></div>`;
+  sliced.forEach(day => {
+    html += `<div class="day-plan"><div class="dh">📅 ${day.day}</div>`;
+    day.items.forEach(i => {
+      html += `<div class="di"><span class="dt">${i.t}</span><span class="da">${i.a}</span></div>`;
+    });
+    html += `</div>`;
+  });
+  html += `<div class="tip-card" style="margin-top:14px;border:2px solid var(--gold);border-radius:11px"><div class="ti">💡</div><div><div class="tt">Adjust karanna!</div><div class="tx">Meka general guide. Weather, season, personal preference anuwa change karanna puluvn. SLTB info: 1955.</div></div></div>`;
+
+  result.innerHTML = html;
+  result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
