@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ceylon Wanderer — Discover Sri Lanka</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9A84C;
+    --deep: #0D1B2A;
+    --teal: #1B6B6B;
+    --cream: #F5EFE0;
+    --rust: #B85C38;
+    --light: #FAF7F2;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--light);
+    color: var(--deep);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; width: 100%; z-index: 100;
+    padding: 20px 60px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(13,27,42,0.85);
+    backdrop-filter: blur(12px);
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+
+  .logo span { color: white; font-style: italic; }
+
+  nav ul { list-style: none; display: flex; gap: 36px; }
+  nav ul a {
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+    font-size: 0.88rem;
+    letter-spacing: 0.5px;
+    transition: color 0.3s;
+  }
+  nav ul a:hover { color: var(--gold); }
+
+  /* HERO */
+  .hero {
+    height: 100vh;
+    background: linear-gradient(160deg, #0D1B2A 0%, #1B3A4B 50%, #0D2A1B 100%);
+    display: flex; align-items: center;
+    position: relative; overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url('https://images.unsplash.com/photo-1586348943529-beaae6c28db9?w=1600&q=80') center/cover;
+    opacity: 0.35;
+  }
+
+  .hero-content {
+    position: relative; z-index: 2;
+    padding: 0 60px; max-width: 700px;
+    animation: fadeUp 1.2s ease forwards;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-eyebrow {
+    font-size: 0.78rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    color: white;
+    line-height: 1.05;
+    margin-bottom: 24px;
+  }
+
+  .hero h1 em { color: var(--gold); font-style: italic; }
+
+  .hero p {
+    color: rgba(255,255,255,0.72);
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 40px;
+    max-width: 480px;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 16px 40px;
+    background: var(--gold);
+    color: var(--deep);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  }
+
+  .btn:hover { background: white; transform: translateY(-2px); }
+
+  .scroll-hint {
+    position: absolute; bottom: 40px; left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,0.4);
+    font-size: 0.78rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    display: flex; flex-direction: column; align-items: center; gap: 8px;
+  }
+
+  .scroll-line {
+    width: 1px; height: 50px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollLine 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollLine {
+    0%, 100% { transform: scaleY(1); opacity: 1; }
+    50% { transform: scaleY(0.5); opacity: 0.3; }
+  }
+
+  /* STATS BAR */
+  .stats {
+    background: var(--deep);
+    padding: 28px 60px;
+    display: flex; gap: 60px;
+  }
+
+  .stat { display: flex; flex-direction: column; }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; color: var(--gold);
+  }
+  .stat-label { font-size: 0.78rem; color: rgba(255,255,255,0.5); letter-spacing: 1px; }
+
+  /* DESTINATIONS */
+  .section { padding: 100px 60px; }
+  .section-label {
+    font-size: 0.75rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--deep);
+    margin-bottom: 16px;
+  }
+  .section-sub {
+    color: #666;
+    max-width: 520px;
+    line-height: 1.7;
+    margin-bottom: 56px;
+  }
+
+  .destinations-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 340px 280px;
+    gap: 16px;
+  }
+
+  .dest-card {
+    position: relative; overflow: hidden; cursor: pointer;
+    transition: transform 0.4s;
+  }
+  .dest-card:hover { transform: scale(1.01); }
+  .dest-card:first-child { grid-row: 1 / 3; }
+
+  .dest-img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+  .dest-card:hover .dest-img { transform: scale(1.07); }
+
+  .dest-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(13,27,42,0.85) 0%, transparent 60%);
+  }
+
+  .dest-info {
+    position: absolute; bottom: 0; left: 0;
+    padding: 28px;
+  }
+
+  .dest-tag {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--deep);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    margin-bottom: 10px;
+  }
+
+  .dest-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: white;
+  }
+
+  .dest-card:not(:first-child) .dest-name { font-size: 1.2rem; }
+
+  .dest-desc {
+    color: rgba(255,255,255,0.7);
+    font-size: 0.82rem;
+    margin-top: 6px;
+  }
+
+  /* TIPS */
+  .tips-section {
+    background: var(--deep);
+    padding: 100px 60px;
+  }
+
+  .tips-section .section-title { color: white; }
+  .tips-section .section-label { color: var(--gold); }
+  .tips-section .section-sub { color: rgba(255,255,255,0.6); }
+
+  .tips-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .tip-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.15);
+    padding: 40px 32px;
+    transition: background 0.3s;
+    position: relative;
+  }
+  .tip-card:hover { background: rgba(201,168,76,0.08); }
+
+  .tip-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    color: rgba(201,168,76,0.2);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+
+  .tip-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: white;
+    margin-bottom: 12px;
+  }
+
+  .tip-body {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  /* GALLERY */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: 220px 220px;
+    gap: 12px;
+  }
+
+  .gallery-item {
+    overflow: hidden;
+    position: relative;
+  }
+
+  .gallery-item:nth-child(1) { grid-column: span 2; }
+  .gallery-item:nth-child(5) { grid-column: span 2; }
+
+  .gallery-item img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+    display: block;
+  }
+  .gallery-item:hover img { transform: scale(1.08); }
+
+  /* CTA */
+  .cta-section {
+    background: var(--cream);
+    padding: 100px 60px;
+    text-align: center;
+  }
+
+  .cta-section .section-title { margin: 0 auto 20px; }
+  .cta-section .section-sub { margin: 0 auto 40px; text-align: center; }
+
+  .cta-btns { display: flex; gap: 16px; justify-content: center; }
+
+  .btn-outline {
+    display: inline-block;
+    padding: 16px 40px;
+    border: 2px solid var(--deep);
+    color: var(--deep);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+  }
+  .btn-outline:hover { background: var(--deep); color: white; }
+
+  /* FOOTER */
+  footer {
+    background: #070E17;
+    padding: 48px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+  }
+
+  footer p {
+    color: rgba(255,255,255,0.3);
+    font-size: 0.82rem;
+  }
+
+  .footer-links { display: flex; gap: 28px; }
+  .footer-links a {
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    font-size: 0.82rem;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--gold); }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    nav ul { display: none; }
+    .hero-content { padding: 0 24px; }
+    .section { padding: 70px 24px; }
+    .stats { padding: 28px 24px; gap: 28px; flex-wrap: wrap; }
+    .destinations-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+    .dest-card:first-child { grid-row: auto; height: 320px; }
+    .dest-card:not(:first-child) { height: 220px; }
+    .tips-grid { grid-template-columns: 1fr; }
+    .tips-section { padding: 70px 24px; }
+    .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .gallery-item:nth-child(1), .gallery-item:nth-child(5) { grid-column: span 2; height: 200px; }
+    .gallery-item { height: 160px; }
+    footer { flex-direction: column; gap: 20px; text-align: center; padding: 40px 24px; }
+    .footer-links { flex-wrap: wrap; justify-content: center; }
+    .cta-section { padding: 70px 24px; }
+    .cta-btns { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Ceylon <span>Wanderer</span></div>
+  <ul>
+    <li><a href="#destinations">Destinations</a></li>
+    <li><a href="#tips">Travel Tips</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <p class="hero-eyebrow">Welcome to the Pearl of the Indian Ocean</p>
+    <h1>Discover<br><em>Sri Lanka</em><br>Like Never Before</h1>
+    <p>Ancient temples, emerald tea hills, turquoise shores, and warm smiles await you on this breathtaking island paradise.</p>
+    <a href="#destinations" class="btn">Explore Destinations</a>
+  </div>
+  <div class="scroll-hint">
+    <div class="scroll-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat"><span class="stat-num">65,610</span><span class="stat-label">km² Island</span></div>
+  <div class="stat"><span class="stat-num">8</span><span class="stat-label">UNESCO Sites</span></div>
+  <div class="stat"><span class="stat-num">1,340+</span><span class="stat-label">km Coastline</span></div>
+  <div class="stat"><span class="stat-num">12°</span><span class="stat-label">Sunny Months</span></div>
+</div>
+
+<!-- DESTINATIONS -->
+<section class="section" id="destinations">
+  <p class="section-label">Where to Go</p>
+  <h2 class="section-title">Iconic Destinations</h2>
+  <p class="section-sub">From the misty highlands of Ella to the golden beaches of Mirissa, every corner of Sri Lanka holds a story.</p>
+
+  <div class="destinations-grid">
+    <div class="dest-card">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1555400038-63f5ba517a47?w=800&q=80" alt="Sigiriya">
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <span class="dest-tag">Heritage</span>
+        <div class="dest-name">Sigiriya Rock Fortress</div>
+        <div class="dest-desc">An ancient palace atop a volcanic plug rising 200m above the jungle floor.</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80" alt="Ella">
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <span class="dest-tag">Hill Country</span>
+        <div class="dest-name">Ella</div>
+        <div class="dest-desc">Scenic train rides through emerald tea estates.</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&q=80" alt="Mirissa">
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <span class="dest-tag">Beach</span>
+        <div class="dest-name">Mirissa</div>
+        <div class="dest-desc">Whale watching & golden shores.</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1564507592333-c60657eea523?w=600&q=80" alt="Kandy">
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <span class="dest-tag">Culture</span>
+        <div class="dest-name">Kandy</div>
+        <div class="dest-desc">Sacred tooth relic & misty green hills.</div>
+      </div>
+    </div>
+    <div class="dest-card">
+      <img class="dest-img" src="https://images.unsplash.com/photo-1540202404-1b927e27fa8b?w=600&q=80" alt="Yala">
+      <div class="dest-overlay"></div>
+      <div class="dest-info">
+        <span class="dest-tag">Wildlife</span>
+        <div class="dest-name">Yala National Park</div>
+        <div class="dest-desc">Leopards, elephants & wild wilderness.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRAVEL TIPS -->
+<section class="tips-section" id="tips">
+  <p class="section-label">Before You Go</p>
+  <h2 class="section-title">Essential Travel Tips</h2>
+  <p class="section-sub">Make the most of your Sri Lanka journey with these helpful pointers from seasoned travellers.</p>
+
+  <div class="tips-grid">
+    <div class="tip-card">
+      <div class="tip-num">01</div>
+      <div class="tip-title">Best Time to Visit</div>
+      <div class="tip-body">December to March is ideal for the south and west coasts. April to September is perfect for the east coast and hill country. Sri Lanka has something to offer year-round!</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">02</div>
+      <div class="tip-title">Visa & Entry</div>
+      <div class="tip-body">Most nationalities require an ETA (Electronic Travel Authorization) obtainable online before arrival. Apply at <strong style="color:var(--gold)">eta.gov.lk</strong> — it's quick and easy.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">03</div>
+      <div class="tip-title">Getting Around</div>
+      <div class="tip-body">Scenic train journeys are a must — especially Kandy to Ella. Tuk-tuks are perfect for short distances. PickMe app works like Uber and is highly recommended.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">04</div>
+      <div class="tip-title">Currency & Costs</div>
+      <div class="tip-body">Sri Lankan Rupee (LKR). ATMs are widely available in cities. Sri Lanka is budget-friendly — a local meal can cost as little as 200–400 LKR.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">05</div>
+      <div class="tip-title">Cultural Respect</div>
+      <div class="tip-body">Dress modestly when visiting temples — cover shoulders and knees. Remove shoes before entering sacred spaces. Always ask before photographing locals.</div>
+    </div>
+    <div class="tip-card">
+      <div class="tip-num">06</div>
+      <div class="tip-title">Food & Drink</div>
+      <div class="tip-body">Try kottu roti, hoppers, and fresh coconut. Street food is delicious and affordable. Drink bottled water. Sri Lankan spices are bold — tell your host if you prefer mild!</div>
+    </div>
+  </div>
+</section>
+
+<!-- GALLERY -->
+<section class="section" id="gallery">
+  <p class="section-label">Visual Journey</p>
+  <h2 class="section-title">Photo Gallery</h2>
+  <p class="section-sub">A glimpse of the colours, textures, and wonders that await you in Sri Lanka.</p>
+
+  <div class="gallery-grid">
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80" alt="Sri Lanka landscape">
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1596402184320-417e7178b2cd?w=400&q=80" alt="Tea plantation">
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1547448415-e9f5b28e570d?w=400&q=80" alt="Elephant">
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=400&q=80" alt="Beach sunset">
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80" alt="Temple">
+    </div>
+    <div class="gallery-item">
+      <img src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80" alt="Mountains">
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contact">
+  <p class="section-label">Plan Your Journey</p>
+  <h2 class="section-title">Ready to Explore?</h2>
+  <p class="section-sub">Start planning your dream Sri Lanka adventure today. From itineraries to hotel recommendations, we're here to help.</p>
+  <div class="cta-btns">
+    <a href="#destinations" class="btn">Browse Destinations</a>
+    <a href="mailto:info@ceylonwanderer.lk" class="btn-outline">Contact Us</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Ceylon Wanderer</div>
+  <p>© 2025 Ceylon Wanderer. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Instagram</a>
+    <a href="#">Facebook</a>
+  </div>
+</footer>
+
+</body>
+</html>
